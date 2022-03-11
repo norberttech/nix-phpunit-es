@@ -2,39 +2,55 @@
 
 namespace NixPHPUnitEs;
 
+use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
+use GuzzleHttp\Ring\Client\CurlHandler;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
 class FailingTest extends TestCase
 {
-    /**
-     * @dataProvider data_provider
-     */
-    public function test_es(string $id, array $data, $index) : void
+    private ?Client $client;
+
+    private ?CurlHandler $handler;
+
+    protected function setUp() : void
     {
-        $client = ClientBuilder::create()
+        $this->client = ClientBuilder::create()
             ->setRetries(0)
             ->setHosts(['localhost'])
             ->setConnectionParams([
                 'client' => [
                     'curl' => [
                         CURLOPT_TIMEOUT => 1,
-                        CURLOPT_CONNECTTIMEOUT => 1
+                        CURLOPT_CONNECTTIMEOUT => 1,
                     ]
                 ]
             ])
-            ->setHandler(ClientBuilder::singleHandler())
+            ->setHandler($this->handler = ClientBuilder::singleHandler())
             ->build();
+    }
 
-        $client->index([
+    protected function tearDown() : void
+    {
+        // the reason why those tests are failing is related to not calling curl_close during tests
+        // $this->handler->__destruct();
+    }
+
+    /**
+     * @dataProvider data_provider
+     */
+    public function test_es(string $id, array $data, $index) : void
+    {
+
+        $this->client->index([
             'index' => Indexes::STRICT_MAPPING_INDEX,
             'refresh' => true,
             'id' => $id,
             'body' => $data
         ]);
 
-        $document = $client->get(
+        $document = $this->client->get(
             [
                 'index' => Indexes::STRICT_MAPPING_INDEX,
                 'id' => $id,
@@ -43,7 +59,7 @@ class FailingTest extends TestCase
 
         $this->assertSame($id, $document['_id']);
 
-        $client->deleteByQuery([
+        $this->client->deleteByQuery([
             'index' => Indexes::STRICT_MAPPING_INDEX,
             'conflicts' => 'proceed',
             'refresh' => true,

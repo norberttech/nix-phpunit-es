@@ -87,6 +87,10 @@ vendor/bin/phpunit  tests/NixPHPUnitEs/PassingTest.php --testdox --verbose
 
 ## Findings 
 
+> This issue does not exist at PHP installed at Ubuntu 20.04 (and probably other distros)
+
+> If we force trigger curl_close (by calling destructor on curl handler) tests are passing regardless of the number of iterations
+
 > Elasticsearch seems to not be the problem here, even that curl is throwing timeouts  
 
 > When failing test is executing 2400 iterations it's passing, it seems that at my laptop, the limit is 2403, 2404 starts breaking.
