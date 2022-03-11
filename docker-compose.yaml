@@ -1,0 +1,27 @@
+version: '2.2'
+services:
+    elastichq:
+        image: elastichq/elasticsearch-hq:latest
+        container_name: nix-phpunit-es-hq
+        ports:
+            - 5000:5000
+        environment:
+          - HQ_DEFAULT_URL=http://es01:9200
+          - HQ_DEBUG=false
+    es01:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+        container_name: nix-phpunit-es
+        ports:
+          - 9200:9200
+        environment:
+          - node.name=es01
+          - discovery.type=single-node
+          - bootstrap.memory_lock=true
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+          nofile:
+            soft: 65536
+            hard: 65536

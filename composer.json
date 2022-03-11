@@ -1,0 +1,26 @@
+{
+    "name": "norberttech/nix-phpunit-es",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "": [
+                "src/"
+            ]
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "": [
+                "tests/"
+            ]
+        }
+    },
+    "require-dev": {
+        "ext-curl": "*",
+        "phpunit/phpunit": "^9.5"
+    },
+    "require": {
+        "ramsey/uuid": "^4.2",
+        "elasticsearch/elasticsearch": "^7"
+    }
+}

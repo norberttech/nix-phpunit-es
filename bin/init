@@ -1,0 +1,64 @@
+#!/usr/bin/env php
+<?php
+
+use Elasticsearch\Client;
+use Elasticsearch\ClientBuilder;
+use NixPHPUnitEs\Indexes;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$client = ClientBuilder::create()
+    ->setRetries(0)
+    ->setHosts(['localhost'])
+    ->setConnectionParams([
+        'client' => [
+            'curl' => [
+                CURLOPT_TIMEOUT => 1,
+                CURLOPT_CONNECTTIMEOUT => 1
+            ]
+        ]
+    ])
+    ->setHandler(ClientBuilder::singleHandler())
+    ->build();
+
+$indexExists = $client->indices()->exists(['index' => Indexes::STRICT_MAPPING_INDEX]);
+
+// all good, nothing to do
+if ($indexExists) {
+    fwrite(STDOUT, "Index already exists");
+    die(0);
+}
+
+
+
+$client->indices()->create([
+    'index' => Indexes::STRICT_MAPPING_INDEX,
+    'body' => [
+        'settings' => [
+            'number_of_shards' => 3,
+        ],
+        'mappings' => [
+            'dynamic' => 'strict',
+            'properties' => [
+                'id' => [
+                    'type' => 'keyword',
+                ],
+                'type' => [
+                    'type' => 'keyword',
+                ],
+                'integer_01' => [
+                    'type' => 'integer',
+                ],
+                'text_01' => [
+                    'type' => 'text',
+                ],
+            ],
+        ],
+    ],
+]);
+
+$client->cluster()->health(['wait_for_status' => 'yellow']);
+
+fwrite(STDOUT, "Index created");
+
+die(0);
