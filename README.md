@@ -12,6 +12,7 @@ First step is to [install nix](https://nixos.org/download.html).
 Following command will initialize docker containers and let them run in background. 
 
 ```
+cp docker-compose.yaml.dist docker-compose.yaml
 docker-compose up -d
 ```
 
