@@ -12,8 +12,6 @@ class PassingTest extends TestCase
 {
     private ?Client $client;
 
-    private ?CurlHandler $handler;
-
     protected function setUp() : void
     {
         $this->client = ClientBuilder::create()
@@ -27,15 +25,10 @@ class PassingTest extends TestCase
                     ]
                 ]
             ])
-            ->setHandler($this->handler = ClientBuilder::singleHandler())
+            ->setHandler(new CurlHandler(['max_handles' => 0]))
             ->build();
     }
 
-    protected function tearDown() : void
-    {
-        // calling destruct will trigger curl_close which solves the problem :|
-        $this->handler->__destruct();
-    }
 
     /**
      * @dataProvider data_provider

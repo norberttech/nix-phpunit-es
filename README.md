@@ -87,6 +87,17 @@ vendor/bin/phpunit  tests/NixPHPUnitEs/PassingTest.php --testdox --verbose
 
 ## Findings 
 
+This behavior is probably more related to macOS libcurl than php itself as suggested [here](https://twitter.com/adrianslowikpl/status/1502351055669141506?s=20&t=RRUkDnaNqBbNH4oPZ4bHFg)
+
+There are two solutions to make [Failingtest](tests/NixPHPUnitEs/FailingTest.php) work: 
+
+* set curl option `CURLOPT_FORBID_REUSE => true` [documentation](https://curl.se/libcurl/c/CURLOPT_FORBID_REUSE.html)
+* use custom CurlHandler `ClientBuilder::create()->setHandler(new CurlHandler(['max_handles' => 0]))` for the elasticsearch client.
+
+I'm still not sure what is the root cuase for this behavior and why on Linux everything works out of the box.
+
+Below some findings: 
+
 > This issue does not exist at PHP installed at Ubuntu 20.04 (and probably other distros)
 
 > If we force trigger curl_close (by calling destructor on curl handler) tests are passing regardless of the number of iterations
@@ -97,5 +108,5 @@ vendor/bin/phpunit  tests/NixPHPUnitEs/PassingTest.php --testdox --verbose
 
 > Nix seems to not be the problem, php installed through brew is acting the same. 
 
-> I was able to reproduce this issue at Intel and M1 macbooks. 
+> I was able to reproduce this issue at macbooks with Intel and M1 processors. 
 

@@ -12,8 +12,6 @@ class FailingTest extends TestCase
 {
     private ?Client $client;
 
-    private ?CurlHandler $handler;
-
     protected function setUp() : void
     {
         $this->client = ClientBuilder::create()
@@ -27,14 +25,8 @@ class FailingTest extends TestCase
                     ]
                 ]
             ])
-            ->setHandler($this->handler = ClientBuilder::singleHandler())
+            ->setHandler(ClientBuilder::singleHandler())
             ->build();
-    }
-
-    protected function tearDown() : void
-    {
-        // the reason why those tests are failing is related to not calling curl_close during tests
-        // $this->handler->__destruct();
     }
 
     /**
